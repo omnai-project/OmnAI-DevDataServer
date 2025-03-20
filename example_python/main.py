@@ -89,7 +89,8 @@ app.router.add_get("/ws", websocket_handler)
 async def main() -> None:
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    port = 8080
+    site = web.TCPSite(runner, "0.0.0.0", port )
     await site.start()
     print("Server running on port 8080 (HTTP & WebSocket)")
     
