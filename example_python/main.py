@@ -3,6 +3,7 @@ import json
 import math
 import signal
 from aiohttp import web
+import time
 
 # Data stream definitions
 DATASTREAMS = [
@@ -30,7 +31,6 @@ async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
     print("Client connected to WebSocket")
-    time = 0
     try:
         async for message in ws:
             command = message.data.strip().split()
@@ -50,13 +50,16 @@ async def websocket_handler(request):
             device_order = [ds["UUID"] for ds in selected_datastreams]
 
             async def send_data():
-                nonlocal time
                 while not ws.closed:
+                    real_timestamp = round(time.time(), 3)  # UNIX-Zeit mit Millisekunden
+                    # Alternative: ISO 8601 Zeitformat
+                    # real_timestamp = datetime.datetime.now().isoformat()
+
                     sample_data = {
-                        "timestamp": time,
+                        "timestamp": real_timestamp,
                         "datastreams": device_order,
                         "data": [[
-                            round(generate_sine_wave(time), 3) if ds["type"] == "sine" else generate_square_wave(time)
+                            round(generate_sine_wave(real_timestamp), 3) if ds["type"] == "sine" else generate_square_wave(real_timestamp)
                             for ds in selected_datastreams
                         ]]
                     }
@@ -64,10 +67,10 @@ async def websocket_handler(request):
                     if output_format == "json":
                         await ws.send_json(sample_data)
                     elif output_format == "csv":
-                        csv_data = f"{time}," + ",".join(map(str, sample_data["data"][0]))
+                        csv_data = f"{real_timestamp}," + ",".join(map(str, sample_data["data"][0]))
                         await ws.send_str(csv_data)
+
                     await asyncio.sleep(1 / sample_rate)
-                    time += 1
             
             task = asyncio.create_task(send_data())
             await task
