@@ -4,6 +4,9 @@ This repository is part of the **OmnAI Project**, which aims to enhance the expl
 
 The **DevDataServer** provides a minimalistic implementation of various data streams that can be used with **OmnAIView** or other data consumers.
 
+## Getting Started
+Find the description on how to setup the dataserver at [this README](example_python/README.md)
+
 ## Purpose
 
 The DevDataServer serves two main purposes:
@@ -14,3 +17,4 @@ The DevDataServer serves two main purposes:
 ## Contribution
 
 For contribution guidelines, please refer to [CONTRIBUTIONS.md](CONTRIBUTIONS.md).
+
