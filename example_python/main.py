@@ -82,8 +82,8 @@ async def websocket_handler(request):
 
 # Create aiohttp application
 app = web.Application()
-app.router.add_get("/UUID", get_datastreams)
-app.router.add_get("/ws", websocket_handler)
+app.router.add_get("/v1/get_devices", get_datastreams)
+app.router.add_get("/v1/subscribe_ws", websocket_handler)
 
 # Start the server
 async def main() -> None:
