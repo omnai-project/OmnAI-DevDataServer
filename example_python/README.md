@@ -36,7 +36,7 @@ env\Scripts\activate
 
 Download the needed packages with 
 ```
-pip install aiohttp websockets
+pip install aiohttp websockets aiohttp_middlewares
 ```
 
 #### Run the script 

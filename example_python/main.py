@@ -2,7 +2,8 @@ import asyncio
 import json
 import math
 import signal
-from aiohttp import web
+from aiohttp import web 
+from aiohttp_middlewares import cors_middleware
 import time
 
 # Data stream definitions
@@ -81,7 +82,7 @@ async def websocket_handler(request):
     return ws
 
 # Create aiohttp application
-app = web.Application()
+app = web.Application(middlewares=[cors_middleware(origins=["http://localhost:4200"])])
 app.router.add_get("/v1/get_devices", get_datastreams)
 app.router.add_get("/v1/subscribe_ws", websocket_handler)
 
