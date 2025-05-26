@@ -36,7 +36,7 @@ env\Scripts\activate
 
 Download the needed packages with 
 ```
-pip install aiohttp websockets
+pip install aiohttp websockets aiohttp_middlewares
 ```
 
 #### Run the script 
@@ -55,7 +55,7 @@ To test the example you can try the following commands:
 #### GET request from the Rest API
 
 ```
-curl -X GET http://localhost:8080/UUID
+curl -X GET http://localhost:8080/v1/get_devices
 ```
 
 The answer should be: 
@@ -75,7 +75,7 @@ Make sure wscat is installed on your system.
 
 Type the following in your CLI : 
 ```
-wscat -c ws://localhost:8080/ws
+wscat -c ws://localhost:8080/v1/subscribe_ws
 ```
 
 A websocket connection should open in your CLI. 
