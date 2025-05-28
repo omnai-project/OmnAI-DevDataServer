@@ -20,7 +20,7 @@ function generateSquareWave(time, frequency = 1.0, amplitude = 1.0, sampleRate =
 
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:4200' }));
+app.use(cors());
 
 
 app.get('/v1/get_devices', (req, res) => {
