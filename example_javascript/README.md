@@ -7,7 +7,7 @@
 ```sh
 git clone https://github.com/AI-Gruppe/OmnAIView-DevDataServer
 cd OmnAIView-DevDataServer/example_javascript/
-npm install 
+npm ci
 node main.js
 ```
 
