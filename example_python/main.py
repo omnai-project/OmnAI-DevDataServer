@@ -95,18 +95,23 @@ async def main() -> None:
     await site.start()
     print("Server running on port 8080 (HTTP & WebSocket)")
     
-    stop_event = asyncio.Event()
-    
-    def shutdown_signal_handler() -> None:
-        print("Shutting down...")
-        stop_event.set()
-    
-    signal.signal(signal.SIGINT, lambda s, f: shutdown_signal_handler())
-    signal.signal(signal.SIGTERM, lambda s, f: shutdown_signal_handler())
     
     await stop_event.wait()
     await runner.cleanup()
     print("Server stopped cleanly.")
 
-if __name__ == "__main__":
-    asyncio.run(main())
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+
+stop_event = asyncio.Event()
+
+def _on_shutdown():
+    stop_event.set()
+
+loop.add_signal_handler(signal.SIGINT, _on_shutdown)
+loop.add_signal_handler(signal.SIGTERM, _on_shutdown)
+
+try:
+    loop.run_until_complete(main())
+finally:
+    loop.close()
