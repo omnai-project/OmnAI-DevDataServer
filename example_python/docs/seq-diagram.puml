@@ -1,0 +1,99 @@
+@startuml
+participant User 
+participant Server
+participant Websocket
+participant Dataservice
+activate User
+activate Dataservice
+User -> Server: python ./main.py
+alt Try:
+Server ->> Server: loop.run_until_complete(main()) "laufe bis main durch ist"
+
+Server ->> Server: await runner.setup()
+Server ->> Server: await site.start()
+activate Server
+note right of Server : Server bereit
+User -> Server: HTTP GET localhost:port/v1/device
+Server ->> Dataservice: async get_datastreams(request)
+loop
+Dataservice -> Dataservice: Loop for ds in DATASTREAMS \n GET UUID \n GET Color \n Loop end
+end
+Dataservice ->> Server: (JSON) response all ds
+Server -> User: 200 OK (JSON) \n Beispiel : {"UUID": 1, "Color": {"r": 1, "g": 2, "b": 3}, "type": "sine"}
+note left of User : Available devices simulation
+User ->> Server : HTTP GET /v1/subscribe_ws Request 
+Server -> Server : async websocket_handel(request)
+Server ->> Websocket : Websocket Initialisierung
+activate Websocket
+Websocket ->> Websocket: await ws.prepare(response)
+Websocket -> Server: request valid
+Server -> User: Connection to websocket successful
+note left of User : Successful connected to websocket
+ 
+   loop : async for message in ws
+  Server ->> Server: leerzeichen vorne hinten weg\n pack alles separat in die Liste\n 
+   
+alt IF (Usereingabe > 2) = True;
+  Server ->> Server: nimm alle ausser 2 letzten\n
+else Else IF (Usereingabe < || == 2 ) == True;
+  Server ->> Server: nimm alle und pack in neue Liste
+end
+
+alt (IF neue Liste UUID == UUID in Dataservice)
+  Server ->> Dataservice:  Datenabgleich
+loop IF (USER UUID == UUID Dataservice) == True;
+  Dataservice -> Dataservice: UUID in UUIDs == Dataservice UUID  
+  Dataservice ->> Server: Gibt die Liste zurück
+end
+
+else Else (IF not Liste)
+Server -> User: await (JSON) Response No Valid UUID
+end
+
+alt
+Server ->> Server: Define Simple_rate \n nimm den vorletzten Element aus der Liste falls die > 2 ist und dies eine Zahl ist
+else Else
+Server ->> Server: Default Simple_rate = 60
+end
+
+loop : ds for ds in DATASTREAMS if ds["UUID"] in uuids
+Server ->> Server: Define Datastream
+end
+
+loop : device_order = [ds["UUID"] for ds in selected_datastreams]
+Server ->> Server: Nimm UUID für jedes ds in selected_datastreams Liste
+end
+
+Websocket ->> Websocket: async send_data()
+
+loop : While Websocket not closed
+Websocket ->> Websocket : Define Sample_data
+
+alt IF output_format == "json"
+Websocket ->> Websocket: await ws.send_json(sample_data)
+else Else 
+Websocket ->> Websocket: await send_csv(csv_data)
+end
+
+Websocket ->> Websocket: Create Task send_data
+Websocket ->> User: await task
+
+Server -> Server: await stop_event.wait()
+note Left of User : Benutzer Drückt CTRL+C
+User -> Server : SIGINT Signal gesendet
+Server -> User : User Disconnected
+deactivate User
+Server -> Server : erstellen eine asyncio.event_loop()
+Server -> Server : definieren der async event loop
+Server -> Server : erstellen einer async Event, stop_event
+Server -> Server : definieren von async stop_event
+Server -> Server : stop_event ist SIGINT und löst eine callback _on_shutdown Funktion aus
+end
+deactivate Websocket
+Server -> Server : await runner.cleanup()
+Server -> Server : Sauber heruntergefahren
+else Finally:
+Server -> Server: loop.close()
+end
+end
+@enduml
