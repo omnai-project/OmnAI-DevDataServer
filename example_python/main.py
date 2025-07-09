@@ -74,7 +74,7 @@ async def websocket_handler(request):
                     await asyncio.sleep(1 / sample_rate)
             
             task = asyncio.create_task(send_data())
-            await task
+            #await task
     except Exception as e:
         print(f"WebSocket error: {e}")
     finally:
